@@ -34,7 +34,7 @@
         </li>
       </ul>
     </div>
-    <v-shopcart></v-shopcart>
+    <v-shopcart :delivery-price="seller.deliveryPrice" :min-price="seller.minPrice"></v-shopcart>
   </div>
 </template>
 <style lang="stylus">
@@ -127,12 +127,17 @@
               color rgb(147, 153, 159)
               text-decoration line-through
 </style>
-<script type="text/ecmascript-6">
+<script>
   import BScroll from 'better-scroll'
   import SmallIcon from 'components/SmallIcon/SmallIcon'
   import shopcart from 'components/shopcart/shopcart'
   const ERR_OK = 0
   export default{
+    props: {
+      seller: {
+        type: Object
+      }
+    },
     data() {
       return {
         goods: {},

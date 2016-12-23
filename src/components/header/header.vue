@@ -64,7 +64,7 @@
     </transition>
   </div>
 </template>
-<script type="text/ecmascript-6">
+<script>
   import Star from 'components/star/star'
   import SmallIcon from 'components/SmallIcon/SmallIcon'
   export default{
