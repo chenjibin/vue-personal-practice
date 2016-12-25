@@ -6,16 +6,16 @@
           <div class="logo" :class="{'highlight':totalCount > 0 }">
             <i class="icon-shopping_cart"></i>
           </div>
-          <div class="num">
-             1
+          <div class="num" v-show="totalCount > 0">
+            {{totalCount}}
           </div>
         </div>
         <div class="price">¥{{totalPrice}}</div>
         <div class="desc">另需配送费¥{{deliveryPrice}}元</div>
       </div>
       <div class="content-right">
-        <div class="pay">
-          ¥{{minPrice}}元起送
+        <div class="pay" :class="payClass">
+          {{payDesc}}
         </div>
       </div>
     </div>
@@ -55,7 +55,7 @@
             background-color #2b343c
             text-align center
             &.highlight
-              background-color rgb(0,160 ,220)
+              background-color rgb(0, 160, 220)
               .icon-shopping_cart
                 color #fff
             .icon-shopping_cart
@@ -74,8 +74,8 @@
             font-size 9px
             font-weight 700
             color #fff
-            background-color rgb(240,20,20)
-            box-shadow 0 4px 8px 0 rgba(0,0,0,0.4)
+            background-color rgb(240, 20, 20)
+            box-shadow 0 4px 8px 0 rgba(0, 0, 0, 0.4)
         .price
           display inline-block
           vertical-align top
@@ -102,19 +102,19 @@
           font-weight 700
           background-color #2b333b
           font-size 12px
+          &.not-enough
+            background-color #2b333b
+          &.enough
+            color #fff
+            background-color #00b43c
 </style>
-<script>
+<script type="text/ecmascript-6">
   export default{
     props: {
       selectFoods: {
         type: Array,
         default() {
-          return [
-            {
-              price: 10,
-              count: 1
-            }
-          ]
+          return []
         }
       },
       deliveryPrice: {
@@ -127,7 +127,9 @@
       }
     },
     data() {
-      return {}
+      return {
+        payClass: ''
+      }
     },
     computed: {
       totalPrice() {
@@ -143,6 +145,17 @@
           count += food.count
         })
         return count
+      },
+      payDesc() {
+        if (this.totalPrice === 0) {
+          return `¥${this.minPrice}元起送`
+        } else if (this.totalPrice < this.minPrice) {
+          this.payClass = 'not-enough'
+          return `还差¥${this.minPrice - this.totalPrice}元起送`
+        } else {
+          this.payClass = 'enough'
+          return '去结算'
+        }
       }
     },
     components: {}

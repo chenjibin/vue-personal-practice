@@ -25,8 +25,10 @@
                   <span class="count">月售{{food.sellCount}}</span><span>好评率{{food.rating}}%</span>
                 </div>
                 <div class="price">
-                  <span class="now">¥{{food.price}}</span><span v-show="food.oldPrice"
-                                                                class="old">¥{{food.oldPrice}}</span>
+                  <span class="now">¥{{food.price}}</span><span v-show="food.oldPrice" class="old">¥{{food.oldPrice}}</span>
+                </div>
+                <div class="cartcontrol-wrapper">
+                  <v-cartcontrol :food="food"></v-cartcontrol>
                 </div>
               </div>
             </li>
@@ -126,11 +128,16 @@
               font-size 10px
               color rgb(147, 153, 159)
               text-decoration line-through
+          .cartcontrol-wrapper
+            position absolute
+            right 0
+            bottom 12px
 </style>
-<script>
+<script type="text/ecmascript-6">
   import BScroll from 'better-scroll'
   import SmallIcon from 'components/SmallIcon/SmallIcon'
   import shopcart from 'components/shopcart/shopcart'
+  import cartcontrol from 'components/cartcontrol/cartcontrol'
   const ERR_OK = 0
   export default{
     props: {
@@ -184,6 +191,7 @@
           click: true
         })
         this.foodsScroll = new BScroll(this.$refs.foods, {
+          click: true,
           probeType: 3
         })
         this.foodsScroll.on('scroll', (pos) => {
@@ -203,7 +211,8 @@
     },
     components: {
       'v-icon': SmallIcon,
-      'v-shopcart': shopcart
+      'v-shopcart': shopcart,
+      'v-cartcontrol': cartcontrol
     }
   }
 </script>
