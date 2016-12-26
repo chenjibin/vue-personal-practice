@@ -2,7 +2,8 @@
   <div class="goods">
     <div class="menu-wrapper" ref="menu">
       <ul>
-        <li v-for="(item, index) in goods" class="menu-item" :class="{'current': currentIndex === index }" @click="selectMenu(index,$event)">
+        <li v-for="(item, index) in goods" class="menu-item" :class="{'current': currentIndex === index }"
+            @click="selectMenu(index,$event)">
           <span class="text border-1px">
             <v-icon v-if="item.type>0" :size="24" :iconStyle="3" :itemType="item.type"></v-icon>{{item.name}}
           </span>
@@ -25,7 +26,8 @@
                   <span class="count">月售{{food.sellCount}}</span><span>好评率{{food.rating}}%</span>
                 </div>
                 <div class="price">
-                  <span class="now">¥{{food.price}}</span><span v-show="food.oldPrice" class="old">¥{{food.oldPrice}}</span>
+                  <span class="now">¥{{food.price}}</span><span v-show="food.oldPrice"
+                                                                class="old">¥{{food.oldPrice}}</span>
                 </div>
                 <div class="cartcontrol-wrapper">
                   <v-cartcontrol :food="food"></v-cartcontrol>
@@ -36,7 +38,7 @@
         </li>
       </ul>
     </div>
-    <v-shopcart :delivery-price="seller.deliveryPrice" :min-price="seller.minPrice"></v-shopcart>
+    <v-shopcart :select-foods="selectFoods" :delivery-price="seller.deliveryPrice" :min-price="seller.minPrice" ref="shopcart"></v-shopcart>
   </div>
 </template>
 <style lang="stylus">
@@ -147,7 +149,7 @@
     },
     data() {
       return {
-        goods: {},
+        goods: [],
         listHeight: [],
         scrollY: 0
       }
@@ -162,20 +164,31 @@
           }
         }
         return 0
+      },
+      selectFoods() {
+        let foods = []
+        this.goods.forEach((good) => {
+          good.foods.forEach((food) => {
+          if (food.count) {
+          foods.push(food)
+        }
+      })
+      })
+        return foods
       }
     },
     mounted() {
-      this.$http.get('/api/goods').then(function(response) {
-        response = response.body
-        if (response.errno === ERR_OK) {
-          this.goods = response.data
-          this.$nextTick(function () {
-            this._initScroll()
-            this._calculateHeight()
-          })
+      this.$http.get('/api/goods').then(function (response) {
+          response = response.body
+          if (response.errno === ERR_OK) {
+            this.goods = response.data
+            this.$nextTick(function () {
+              this._initScroll()
+              this._calculateHeight()
+            })
+          }
         }
-      }
-    )
+      )
     },
     methods: {
       selectMenu(index, e) {
@@ -207,6 +220,9 @@
           height += item.clientHeight
           this.listHeight.push(height)
         }
+      },
+      _drop(target) {
+        this.$refs.shopcart.drop(target)
       }
     },
     components: {

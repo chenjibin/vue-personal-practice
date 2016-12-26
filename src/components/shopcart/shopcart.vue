@@ -19,6 +19,11 @@
         </div>
       </div>
     </div>
+    <div class="ball-container">
+      <transition-group  tag="div" name="drop" v-on:before-enter="dropBeforeEnter" v-on:enter="dropEnter"  v-on:after-enter="dropAfterEnter"  v-on:enter-cancelled="dropEnterCancelled">
+        <div v-for="(ball,index) in balls" v-show="ball.show" class="ball" :key="index"></div>
+      </transition-group>
+    </div>
   </div>
 </template>
 <style lang="stylus">
@@ -107,6 +112,18 @@
           &.enough
             color #fff
             background-color #00b43c
+    .ball-container
+      .drop-enter-active, .drop-leave-active
+        transition all .4s linear
+        transform translate3D(0, 0, 0) rotate(0)
+      .drop-enter, .drop-leave-active
+        transform translate3D(24px, 0, 0) rotate(180deg)
+        opacity 0
+      .ball
+        position fixed
+        left 32px
+        bottom 22px
+        z-index 200
 </style>
 <script type="text/ecmascript-6">
   export default{
@@ -128,7 +145,15 @@
     },
     data() {
       return {
-        payClass: ''
+        payClass: '',
+        balls: [
+          {show: false},
+          {show: false},
+          {show: false},
+          {show: false},
+          {show: false}
+        ],
+        dropBalls: []
       }
     },
     computed: {
@@ -156,6 +181,42 @@
           this.payClass = 'enough'
           return '去结算'
         }
+      }
+    },
+    methods: {
+      drop(el) {
+        for (let i = 0; i < this.balls.length; i++) {
+          let ball = this.balls[i]
+          if (!ball.show) {
+            ball.show = true
+            ball.el = el
+            this.dropBall.push(ball)
+            return
+          }
+        }
+      },
+      dropBeforeEnter(el) {
+        let count = this.balls.length
+        while (count--) {
+          let ball = this.balls[count]
+          if (ball.show) {
+            let rect = ball.el.getBoundingClientRect()
+            let x = rect.left - 32
+            let y = -(window.innerHeight - rect.top - 22)
+            el.style.display = ''
+            el.style.webkitTransform = `translate3d(${x}px,${y}px,0)`
+            el.style.transform = `translate3d(${x}px,${y}px,0)`
+          }
+        }
+      },
+      dropEnter(el, done) {
+
+      },
+      dropAfterEnter(el) {
+
+      },
+      dropEnterCancelled(el) {
+
       }
     },
     components: {}

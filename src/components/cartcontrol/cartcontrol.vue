@@ -13,9 +13,9 @@
     font-size 0
     .move-enter-active, .move-leave-active
       transition all .4s linear
-      transform translate3D(0,0,0) rotate(0)
+      transform translate3D(0, 0, 0) rotate(0)
     .move-enter, .move-leave-active
-      transform translate3D(24px,0,0) rotate(180deg)
+      transform translate3D(24px, 0, 0) rotate(180deg)
       opacity 0
     .cart-count
       display inline-block
@@ -45,19 +45,18 @@
       return {}
     },
     created() {
-
     },
     methods: {
       addCart(event) {
         if (!event._constructed) {
           return
         }
-        console.log('aa')
         if (!this.food.count) {
           Vue.set(this.food, 'count', 1)
         } else {
           this.food.count++
         }
+        this.$parent._drop(event.target)
       },
       decreaseCart(event) {
         if (!event._constructed) {
