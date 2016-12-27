@@ -18,6 +18,7 @@
 
 <script type="text/ecmascript-6">
   import Header from 'components/header/header'
+  import store from './vuex/store'
   const ERR_OK = 0
   export default {
     data() {
@@ -35,7 +36,8 @@
     },
     components: {
       'v-header': Header
-    }
+    },
+    store
   }
 </script>
 
