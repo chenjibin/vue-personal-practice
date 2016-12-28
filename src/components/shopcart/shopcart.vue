@@ -20,8 +20,10 @@
       </div>
     </div>
     <div class="ball-container">
-      <transition-group  tag="div" name="drop" v-on:before-enter="dropBeforeEnter" v-on:enter="dropEnter"  v-on:after-enter="dropAfterEnter"  v-on:enter-cancelled="dropEnterCancelled">
-        <div v-for="(ball,index) in balls" v-show="ball.show" class="ball" :key="index"></div>
+      <transition-group  tag="div" name="drop" v-on:before-enter="dropBeforeEnter" v-on:enter="dropEnter"  v-on:after-enter="dropAfterEnter" :css="false">
+        <div v-for="ball in balls" v-if="ball.show" class="ball" :key="ball">
+          <div class="inner inner-hook"></div>
+        </div>
       </transition-group>
     </div>
   </div>
@@ -113,17 +115,18 @@
             color #fff
             background-color #00b43c
     .ball-container
-      .drop-enter-active, .drop-leave-active
-        transition all .4s linear
-        transform translate3D(0, 0, 0) rotate(0)
-      .drop-enter, .drop-leave-active
-        transform translate3D(24px, 0, 0) rotate(180deg)
-        opacity 0
       .ball
         position fixed
         left 32px
         bottom 22px
         z-index 200
+        transition all 0.4s cubic-bezier(0.49,-0.29,0.75,0.41)
+        .inner
+          width 16px
+          height 16px
+          border-radius 50%
+          background-color rgb(0,160,220)
+          transition all 0.4s linear
 </style>
 <script type="text/ecmascript-6">
   export default{
@@ -146,13 +149,7 @@
     data() {
       return {
         payClass: '',
-        balls: [
-          {show: false},
-          {show: false},
-          {show: false},
-          {show: false},
-          {show: false}
-        ],
+        balls: [],
         dropBalls: []
       }
     },
@@ -183,17 +180,21 @@
         }
       }
     },
+    watch: {
+//      balls(val, oldval) {
+//        console.log(val)
+//        console.log(oldval)
+//      },
+//      dropBalls(val) {
+//        console.log(val)
+//      }
+    },
     methods: {
       drop(el) {
-        for (let i = 0; i < this.balls.length; i++) {
-          let ball = this.balls[i]
-          if (!ball.show) {
-            ball.show = true
-            ball.el = el
-            this.dropBall.push(ball)
-            return
-          }
-        }
+        let ball = {}
+        ball.show = true
+        ball.el = el
+        this.balls.push(ball)
       },
       dropBeforeEnter(el) {
         let count = this.balls.length
@@ -202,21 +203,30 @@
           if (ball.show) {
             let rect = ball.el.getBoundingClientRect()
             let x = rect.left - 32
-            let y = -(window.innerHeight - rect.top - 22)
-            el.style.display = ''
-            el.style.webkitTransform = `translate3d(${x}px,${y}px,0)`
-            el.style.transform = `translate3d(${x}px,${y}px,0)`
+            let y = -(window.innerHeight - rect.top - 42)
+            let innerDom = el.querySelector('.inner-hook')
+            el.style.webkitTransform = `translate3d(0,${y}px,0)`
+            el.style.transform = `translate3d(0,${y}px,0)`
+            innerDom.style.webkitTransform = `translate3d(${x}px,0,0)`
+            innerDom.style.transform = `translate3d(${x}px,0,0)`
           }
         }
       },
       dropEnter(el, done) {
-
+        let rf = el.offsetHeight
+        let innerDom = el.querySelector('.inner-hook')
+        this.$nextTick(() => {
+          el.style.webkitTransform = 'translate3d(0,0,0)'
+          el.style.transform = 'translate3d(0,0,0)'
+          innerDom.style.webkitTransform = 'translate3d(0,0,0)'
+          innerDom.style.transform = 'translate3d(0,0,0)'
+        })
+        setTimeout(function () {
+          done()
+        }, 400)
       },
       dropAfterEnter(el) {
-
-      },
-      dropEnterCancelled(el) {
-
+        let ball = this.balls.shift()
       }
     },
     components: {}

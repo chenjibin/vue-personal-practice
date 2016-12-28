@@ -51,9 +51,6 @@
             </div>
             <div class="bulletin-new">
               <p class="content">{{seller.bulletin}}</p>
-              <p class="content">{{seller.bulletin}}</p>
-              <p class="content">{{seller.bulletin}}</p>
-              <p class="content">{{seller.bulletin}}</p>
             </div>
           </div>
         </div>
