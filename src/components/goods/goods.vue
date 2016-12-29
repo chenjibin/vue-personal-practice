@@ -140,6 +140,7 @@
   import SmallIcon from 'components/SmallIcon/SmallIcon'
   import shopcart from 'components/shopcart/shopcart'
   import cartcontrol from 'components/cartcontrol/cartcontrol'
+  import {incrementCounter} from 'src/vuex/actions'
   const ERR_OK = 0
   export default{
     props: {

@@ -1,7 +1,8 @@
 <template>
+  <div>
   <div class="shopcart">
     <div class="content">
-      <div class="content-left">
+      <div class="content-left" @click="toggleList">
         <div class="logo-wrapper">
           <div class="logo" :class="{'highlight':totalCount > 0 }">
             <i class="icon-shopping_cart"></i>
@@ -14,21 +15,60 @@
         <div class="desc">另需配送费¥{{deliveryPrice}}元</div>
       </div>
       <div class="content-right">
-        <div class="pay" :class="payClass">
+        <div class="pay" :class="payClass" @click="addNew">
           {{payDesc}}
         </div>
       </div>
     </div>
     <div class="ball-container">
-      <transition-group  tag="div" name="drop" v-on:before-enter="dropBeforeEnter" v-on:enter="dropEnter"  v-on:after-enter="dropAfterEnter" :css="false">
+      <transition-group tag="div" name="drop" v-on:before-enter="dropBeforeEnter" v-on:enter="dropEnter"
+                        v-on:after-enter="dropAfterEnter" :css="false">
         <div v-for="ball in balls" v-if="ball.show" class="ball" :key="ball">
           <div class="inner inner-hook"></div>
         </div>
       </transition-group>
     </div>
+    <transition name="fold">
+      <div class="shopcart-list" v-show="listShow">
+        <div class="list-header">
+          <h1 class="title">购物车</h1>
+          <span class="empty" @click="empty">清空</span>
+        </div>
+        <div class="list-content" ref="foodlist">
+          <ul>
+            <li class="food" v-for="food in selectFoods">
+              <span class="name">{{food.name}}</span>
+              <div class="price">
+                <span>¥{{food.price * food.count}}</span>
+              </div>
+              <div class="cartcontrol-wrapper">
+                <v-cartcontrol :food="food"></v-cartcontrol>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </transition>
+  </div>
+  <transition name=fade>
+  <div class="list-mask" v-show="listShow" @click="toggleList"></div>
+  </transition>
   </div>
 </template>
 <style lang="stylus">
+  @import "../../common/stylus/mixin"
+  .list-mask
+    position fixed
+    top 0
+    left 0
+    width 100%
+    height 100%
+    z-index 40
+    backdrop-filter blur(10px)
+    background-color rgba(7,17,27,0.6)
+    transition opacity  0.3s ease-out
+    &.fade-enter, &.fade-leave-active
+      opacity 0
   .shopcart
     position fixed
     bottom 0
@@ -120,15 +160,68 @@
         left 32px
         bottom 22px
         z-index 200
-        transition all 0.4s cubic-bezier(0.49,-0.29,0.75,0.41)
+        transition all 0.4s cubic-bezier(0.49, -0.29, 0.75, 0.41)
         .inner
           width 16px
           height 16px
           border-radius 50%
-          background-color rgb(0,160,220)
+          background-color rgb(0, 160, 220)
           transition all 0.4s linear
+    .shopcart-list
+      position absolute
+      top 0
+      left 0
+      z-index -1
+      width 100%
+      transition all .3s ease
+      transform translate3d(0, -100%, 0)
+      &.fold-enter, &.fold-leave-active
+        transform translate3d(0, 0, 0)
+      .list-header
+        height 40px
+        line-height 40px
+        padding 0 18px
+        background-color #f3f5f7
+        border-bottom 1px solid rgba(7, 17, 27, 0.1)
+        .title
+          float left
+          font-size 14px
+          color rgb(7, 17, 27)
+        .empty
+          float right
+          color rgb(0, 160, 220)
+          font-size 12px
+      .list-content
+        padding 0 18px
+        max-height 217px
+        overflow hidden
+        background-color #fff
+        .food
+          position relative
+          padding 12px 0
+          box-sizing border-box
+          border-1px(rgba(7, 17, 27, 0.1))
+          .name
+            line-height 24px
+            font-size 14px
+            color rgb(7, 17, 27)
+          .price
+            position absolute
+            right 90px
+            bottom 12px
+            line-height 24px
+            font-size 14px
+            font-weight 700
+            color rgb(240, 20, 20)
+          .cartcontrol-wrapper
+            position absolute
+            right 0
+            bottom 6px
 </style>
 <script type="text/ecmascript-6">
+  import cartcontrol from 'components/cartcontrol/cartcontrol'
+  import BScroll from 'better-scroll'
+  import {getCount} from 'src/vuex/getters'
   export default{
     props: {
       selectFoods: {
@@ -150,7 +243,8 @@
       return {
         payClass: '',
         balls: [],
-        dropBalls: []
+        dropBalls: [],
+        fold: true
       }
     },
     computed: {
@@ -158,14 +252,14 @@
         let total = 0
         this.selectFoods.forEach((food) => {
           total += food.price * food.count
-        })
+      })
         return total
       },
       totalCount() {
         let count = 0
         this.selectFoods.forEach((food) => {
           count += food.count
-        })
+      })
         return count
       },
       payDesc() {
@@ -178,18 +272,31 @@
           this.payClass = 'enough'
           return '去结算'
         }
+      },
+      listShow() {
+        if (!this.totalCount) {
+          this.fold = true
+          return false
+        }
+        let show = !this.fold
+        if (show) {
+          this.$nextTick(() => {
+            if (!this.scroll) {
+            this.scroll = new BScroll(this.$refs.foodlist, {
+              click: true
+            })
+          } else {
+            this.scroll.refresh()
+          }
+        })
+        }
+        return show
       }
     },
-    watch: {
-//      balls(val, oldval) {
-//        console.log(val)
-//        console.log(oldval)
-//      },
-//      dropBalls(val) {
-//        console.log(val)
-//      }
-    },
     methods: {
+      addNew() {
+        this.$store.dispatch('incrementCounter')
+      },
       drop(el) {
         let ball = {}
         ball.show = true
@@ -217,18 +324,31 @@
         let innerDom = el.querySelector('.inner-hook')
         this.$nextTick(() => {
           el.style.webkitTransform = 'translate3d(0,0,0)'
-          el.style.transform = 'translate3d(0,0,0)'
-          innerDom.style.webkitTransform = 'translate3d(0,0,0)'
-          innerDom.style.transform = 'translate3d(0,0,0)'
-        })
+        el.style.transform = 'translate3d(0,0,0)'
+        innerDom.style.webkitTransform = 'translate3d(0,0,0)'
+        innerDom.style.transform = 'translate3d(0,0,0)'
+      })
         setTimeout(function () {
           done()
         }, 400)
       },
       dropAfterEnter(el) {
         let ball = this.balls.shift()
+      },
+      toggleList() {
+        if (!this.totalCount) {
+          return
+        }
+        this.fold = !this.fold
+      },
+      empty() {
+        this.selectFoods.forEach((food) => {
+          food.count = 0
+        })
       }
     },
-    components: {}
+    components: {
+      'v-cartcontrol': cartcontrol
+    }
   }
 </script>

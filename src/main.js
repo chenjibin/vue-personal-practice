@@ -2,6 +2,7 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import VueResource from 'vue-resource'
 import App from './App'
+import store from 'src/vuex/store'
 import goods from 'components/goods/goods'
 import ratings from 'components/ratings/ratings'
 import seller from 'components/seller/seller'
@@ -20,6 +21,7 @@ const router = new VueRouter({
 
 new Vue({
   router,
+  store,
   ...App
 }).$mount('#app')
 

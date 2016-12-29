@@ -12,7 +12,7 @@
       <div class="content">
         <div class="title">
           <i class="brand"></i>
-          <span class="name">{{seller.name}}</span>
+          <span class="name">{{seller.name}} {{newCount}}</span>
         </div>
         <div class="description">
           {{seller.description}} / {{seller.deliveryTime}} 分钟送达
@@ -70,6 +70,11 @@
         detailShow: false
       }
     },
+    computed: {
+      newCount() {
+        return this.$store.getters.getCount
+      }
+    },
     methods: {
       showDetail() {
         this.detailShow = true
@@ -96,10 +101,8 @@
   @import "../../common/stylus/mixin"
   .fade-enter-active, .fade-leave-active
     transition opacity 0.3s
-
   .fade-enter, .fade-leave-active
     opacity 0
-
   .header
     position relative
     color #fff
@@ -210,6 +213,7 @@
       width 100%
       height 100%
       overflow auto
+      backdrop-filter blur(10px)
       background-color rgba(7, 17, 27, 0.8)
       -webkit-overflow-scrolling: touch;
       .detail-wrapper
