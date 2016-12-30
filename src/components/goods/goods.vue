@@ -38,7 +38,7 @@
         </li>
       </ul>
     </div>
-    <v-shopcart :select-foods="selectFoods" :delivery-price="seller.deliveryPrice" :min-price="seller.minPrice" ref="shopcart"></v-shopcart>
+    <v-shopcart :select-foods="selectFoods" :delivery-price="seller.deliveryPrice" :min-price="seller.minPrice"></v-shopcart>
   </div>
 </template>
 <style lang="stylus">
@@ -221,9 +221,6 @@
           height += item.clientHeight
           this.listHeight.push(height)
         }
-      },
-      _drop(target) {
-        this.$refs.shopcart.drop(target)
       }
     },
     components: {

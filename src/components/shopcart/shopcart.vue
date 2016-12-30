@@ -2,8 +2,8 @@
   <div>
   <div class="shopcart">
     <div class="content">
-      <div class="content-left" @click="toggleList">
-        <div class="logo-wrapper">
+      <div class="content-left" >
+        <div class="logo-wrapper" @click="toggleList">
           <div class="logo" :class="{'highlight':totalCount > 0 }">
             <i class="icon-shopping_cart"></i>
           </div>
@@ -21,12 +21,12 @@
       </div>
     </div>
     <div class="ball-container">
-      <transition-group tag="div" name="drop" v-on:before-enter="dropBeforeEnter" v-on:enter="dropEnter"
-                        v-on:after-enter="dropAfterEnter" :css="false">
-        <div v-for="ball in balls" v-if="ball.show" class="ball" :key="ball">
+      <transition  v-for="ball in balls" name="drop" v-on:before-enter="dropBeforeEnter" v-on:enter="dropEnter"
+                        v-on:after-enter="dropAfterEnter">
+        <div v-show="ball.show" class="ball" :key="ball">
           <div class="inner inner-hook"></div>
         </div>
-      </transition-group>
+      </transition>
     </div>
     <transition name="fold">
       <div class="shopcart-list" v-show="listShow">
@@ -242,8 +242,8 @@
     data() {
       return {
         payClass: '',
-        balls: [],
-        dropBalls: [],
+        balls: this.$store.getters.getBalls,
+        dropBalls: this.$store.getters.getDropBalls,
         fold: true
       }
     },
@@ -297,21 +297,16 @@
       addNew() {
         this.$store.dispatch('incrementCounter')
       },
-      drop(el) {
-        let ball = {}
-        ball.show = true
-        ball.el = el
-        this.balls.push(ball)
-      },
       dropBeforeEnter(el) {
         let count = this.balls.length
         while (count--) {
           let ball = this.balls[count]
           if (ball.show) {
             let rect = ball.el.getBoundingClientRect()
-            let x = rect.left - 32
-            let y = -(window.innerHeight - rect.top - 42)
+            let x = rect.left - 20
+            let y = -(window.innerHeight - rect.top - 44)
             let innerDom = el.querySelector('.inner-hook')
+            el.style.display = ''
             el.style.webkitTransform = `translate3d(0,${y}px,0)`
             el.style.transform = `translate3d(0,${y}px,0)`
             innerDom.style.webkitTransform = `translate3d(${x}px,0,0)`
@@ -319,21 +314,22 @@
           }
         }
       },
-      dropEnter(el, done) {
+      dropEnter(el) {
         let rf = el.offsetHeight
-        let innerDom = el.querySelector('.inner-hook')
         this.$nextTick(() => {
           el.style.webkitTransform = 'translate3d(0,0,0)'
-        el.style.transform = 'translate3d(0,0,0)'
-        innerDom.style.webkitTransform = 'translate3d(0,0,0)'
-        innerDom.style.transform = 'translate3d(0,0,0)'
+          el.style.transform = 'translate3d(0,0,0)'
+          let innerDom = el.querySelector('.inner-hook')
+          innerDom.style.webkitTransform = 'translate3d(0,0,0)'
+          innerDom.style.transform = 'translate3d(0,0,0)'
       })
-        setTimeout(function () {
-          done()
-        }, 400)
       },
       dropAfterEnter(el) {
-        let ball = this.balls.shift()
+        let ball = this.dropBalls.shift()
+        if (ball) {
+          ball.show = false
+          el.style.display = 'none'
+        }
       },
       toggleList() {
         if (!this.totalCount) {

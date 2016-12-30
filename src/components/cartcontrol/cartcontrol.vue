@@ -31,7 +31,7 @@
       padding 6px
       font-size 24px
       line-height 24px
-      color rgb(0, 160, 220)   
+      color rgb(0, 160, 220)
 </style>
 <script type="text/ecmascript-6">
   import Vue from 'vue'
@@ -56,7 +56,7 @@
         } else {
           this.food.count++
         }
-        this.$parent._drop(event.target)
+        this.$store.dispatch('drop', event.target)
       },
       decreaseCart(event) {
         if (!event._constructed) {
